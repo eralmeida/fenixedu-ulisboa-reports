@@ -150,5 +150,4 @@ public class ProfessorshipReport implements Comparable<ProfessorshipReport> {
     public ShiftProfessorship getShiftProfessorship() {
         return shiftProfessorship;
     }
-
 }

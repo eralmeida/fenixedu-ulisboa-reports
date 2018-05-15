@@ -83,7 +83,7 @@ public class ProfessorshipReportController extends FenixeduULisboaReportsBaseCon
         return jspPage("professorshipreport");
     }
 
-    private void setResults(Collection<ProfessorshipDegreeReport> results, Model model) {
+    private void setResults(Collection<? extends ProfessorshipReport> results, Model model) {
         model.addAttribute("results", results);
     }
 
