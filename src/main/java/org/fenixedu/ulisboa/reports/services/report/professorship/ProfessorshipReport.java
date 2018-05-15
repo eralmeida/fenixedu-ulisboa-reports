@@ -1,13 +1,10 @@
 package org.fenixedu.ulisboa.reports.services.report.professorship;
 
 import java.text.Collator;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -20,28 +17,18 @@ import org.fenixedu.ulisboa.reports.util.ULisboaReportsUtil;
 public class ProfessorshipReport implements Comparable<ProfessorshipReport> {
 
     private ShiftProfessorship shiftProfessorship;
-    private List<Degree> shiftDegrees;
 
     public ProfessorshipReport(final ShiftProfessorship shiftProfessorship) {
         this.shiftProfessorship = shiftProfessorship;
-        this.shiftDegrees = getShiftDegrees();
-    }
-
-    private ArrayList<Degree> getShiftDegrees() {
-        return getShift().getExecutionCourse().getExecutionDegrees().stream().map(o -> o.getDegree())
-                .collect(Collectors.toCollection(ArrayList::new));
-    }
-
-    protected Shift getShift() {
-        return shiftProfessorship.getShift();
     }
 
     @Override
     public int compareTo(final ProfessorshipReport o) {
 
-        final Comparator<ProfessorshipReport> byTeacher =
-                (x, y) -> Collator.getInstance().compare(x.getTeacherName(), y.getTeacherName());
+        final Collator instance = Collator.getInstance();
+        instance.setStrength(Collator.NO_DECOMPOSITION);
 
+        final Comparator<ProfessorshipReport> byTeacher = (x, y) -> instance.compare(x.getTeacherName(), y.getTeacherName());
         final Comparator<ProfessorshipReport> bySemesterAndYear = (x, y) -> ExecutionSemester.COMPARATOR_BY_SEMESTER_AND_YEAR
                 .compare(x.getExecutionPeriod(), y.getExecutionPeriod());
 
@@ -72,6 +59,10 @@ public class ProfessorshipReport implements Comparable<ProfessorshipReport> {
         return shift == null ? null : shift.getExecutionCourse();
     }
 
+    protected Shift getShift() {
+        return shiftProfessorship.getShift();
+    }
+
     public String getTeacherUsername() {
         final Person person = getTeacherPerson();
         return person == null ? null : person.getUsername();
@@ -79,8 +70,8 @@ public class ProfessorshipReport implements Comparable<ProfessorshipReport> {
 
     public String getTeacherDepartment() {
         return Optional.ofNullable(getProfessorship()).map(o -> o.getTeacher())
-                .map(o -> o.getTeacherAuthorization(getExecutionPeriod().getAcademicInterval()).get()).map(o -> o.getDepartment())
-                .map(o -> o.getNameI18n().getContent()).orElse(null);
+                .flatMap(o -> o.getTeacherAuthorization(getExecutionPeriod().getAcademicInterval())).map(o -> o.getDepartment())
+                .map(o -> o.getNameI18n().getContent()).orElse("");
     }
 
     public String getIsResponsible() {
@@ -106,14 +97,6 @@ public class ProfessorshipReport implements Comparable<ProfessorshipReport> {
         return getExecutionCourse().getNameI18N().getContent();
     }
 
-    public String getShiftDegreesNames() {
-        return this.shiftDegrees.stream().map(degree -> degree.getNameI18N().getContent()).collect(Collectors.joining(";"));
-    }
-
-    public String getShiftDegreesCodes() {
-        return this.shiftDegrees.stream().map(degree -> degree.getCode()).collect(Collectors.joining(";"));
-    }
-
     public String getClassesName() {
         final Shift shift = getShift();
         return shift == null ? null : shift.getClassesPrettyPrint();
@@ -129,7 +112,7 @@ public class ProfessorshipReport implements Comparable<ProfessorshipReport> {
         return shift == null ? null : shift.getShiftTypesPrettyPrint();
     }
 
-    public String getShiftOcupation() {
+    public String getShiftOccupation() {
         return Integer.toString(getShift().getStudentsSet().size());
     }
 
