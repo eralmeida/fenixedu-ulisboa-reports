@@ -315,21 +315,15 @@
                     </c:if>
                 </td>
                 <td>
-                    <c:if test="${not empty result.degreeName}">
-                        <c:out value="${result.degreeName}"></c:out>
-                    </c:if>
-                </td>
-                <td>
-                    <c:if test="${not empty result.degreeCode}">
-                        <c:out value="${result.degreeCode}"></c:out>
-                    </c:if>
-                </td>
-                <td>
                     <c:if test="${not empty result.executionCourseName}">
                         <c:out value="${result.executionCourseName}"></c:out>
                     </c:if>
                 </td>
-
+                <td>
+                    <c:if test="${not empty result.competenceCourseCode}">
+                        <c:out value="${result.competenceCourseCode}"></c:out>
+                    </c:if>
+                </td>
                 <!--<td>
 						<c:if test="${not empty result.classesName}">
 							<c:out value="${result.classesName}"></c:out>

@@ -78,7 +78,7 @@ public class ProfessorshipReportController extends FenixeduULisboaReportsBaseCon
             RedirectAttributes redirectAttributes) {
         setParametersBean(bean, model);
 
-        setResults(generateProfessorshipDegreeReport(generateProfessorshipReport(bean)), model);
+        setResults(generateProfessorshipReport(bean), model);
 
         return jspPage("professorshipreport");
     }

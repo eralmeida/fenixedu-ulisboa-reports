@@ -32,8 +32,10 @@ public class ProfessorshipDegreeReport extends ProfessorshipReport {
                 y) -> ExecutionSemester.COMPARATOR_BY_SEMESTER_AND_YEAR.compare(x.getExecutionPeriod(), y.getExecutionPeriod());
         final Comparator<ProfessorshipDegreeReport> byDegreeName =
                 (x, y) -> instance.compare(x.getDegreeName(), y.getDegreeName());
+        final Comparator<ProfessorshipDegreeReport> byCourseName =
+                (x, y) -> instance.compare(x.getExecutionCourseName(), y.getExecutionCourseName());
 
-        return byTeacher.thenComparing(bySemesterAndYear).thenComparing(byDegreeName).compare(this,
+        return byTeacher.thenComparing(bySemesterAndYear).thenComparing(byDegreeName).thenComparing(byCourseName).compare(this,
                 (ProfessorshipDegreeReport) o);
     }
 

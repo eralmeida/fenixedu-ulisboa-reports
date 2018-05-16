@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -31,8 +32,10 @@ public class ProfessorshipReport implements Comparable<ProfessorshipReport> {
         final Comparator<ProfessorshipReport> byTeacher = (x, y) -> instance.compare(x.getTeacherName(), y.getTeacherName());
         final Comparator<ProfessorshipReport> bySemesterAndYear = (x, y) -> ExecutionSemester.COMPARATOR_BY_SEMESTER_AND_YEAR
                 .compare(x.getExecutionPeriod(), y.getExecutionPeriod());
+        final Comparator<ProfessorshipReport> byCourseName =
+                (x, y) -> instance.compare(x.getExecutionCourseName(), y.getExecutionCourseName());
 
-        return byTeacher.thenComparing(bySemesterAndYear).compare(this, o);
+        return byTeacher.thenComparing(bySemesterAndYear).thenComparing(byCourseName).compare(this, o);
     }
 
     public String getTeacherName() {
@@ -40,18 +43,14 @@ public class ProfessorshipReport implements Comparable<ProfessorshipReport> {
         return person == null ? null : person.getName();
     }
 
-    protected Person getTeacherPerson() {
-        Professorship professorship = getProfessorship();
-        return professorship == null ? null : professorship.getPerson();
+    protected String getCompetenceCourseCode() {
+        return getCompetenceCourse().getCode();
     }
 
-    protected Professorship getProfessorship() {
-        return shiftProfessorship.getProfessorship();
-    }
-
-    public ExecutionSemester getExecutionPeriod() {
-        final ExecutionCourse executionCourse = getExecutionCourse();
-        return executionCourse == null ? null : executionCourse.getExecutionPeriod();
+    private CompetenceCourse getCompetenceCourse() {
+        // For some reason, an ExecutionCourse could be related to more than 1 CompetenceCourse.
+        // This doesn't make much sense, so this method will just return the first found CompetenceCourse.
+        return getExecutionCourse().getCompetenceCourses().iterator().next();
     }
 
     protected ExecutionCourse getExecutionCourse() {
@@ -63,15 +62,37 @@ public class ProfessorshipReport implements Comparable<ProfessorshipReport> {
         return shiftProfessorship.getShift();
     }
 
+    protected String getCompetenceCourseRegime() {
+        return getCompetenceCourse().getRegime().getLocalizedName();
+    }
+
+    protected String getCompetenceCourseDepartment() {
+        return getCompetenceCourse().getDepartmentUnit().getName();
+    }
+
     public String getTeacherUsername() {
         final Person person = getTeacherPerson();
         return person == null ? null : person.getUsername();
+    }
+
+    protected Person getTeacherPerson() {
+        Professorship professorship = getProfessorship();
+        return professorship == null ? null : professorship.getPerson();
+    }
+
+    protected Professorship getProfessorship() {
+        return shiftProfessorship.getProfessorship();
     }
 
     public String getTeacherDepartment() {
         return Optional.ofNullable(getProfessorship()).map(o -> o.getTeacher())
                 .flatMap(o -> o.getTeacherAuthorization(getExecutionPeriod().getAcademicInterval())).map(o -> o.getDepartment())
                 .map(o -> o.getNameI18n().getContent()).orElse("");
+    }
+
+    public ExecutionSemester getExecutionPeriod() {
+        final ExecutionCourse executionCourse = getExecutionCourse();
+        return executionCourse == null ? null : executionCourse.getExecutionPeriod();
     }
 
     public String getIsResponsible() {
